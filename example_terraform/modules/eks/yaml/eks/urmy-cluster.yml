@@ -1,0 +1,36 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: eks-cluster
+  region: ap-northeast-2
+vpc:
+  id: "vpc-b5678dde"
+  cidr: "172.31.0.0/16"
+  subnets:
+    public:
+      ap-northeast-2c:
+        id: "subnet-0c8008973ec84832e"
+        cidr: "172.31.100.0/24"
+      ap-northeast-2d:
+        id: "subnet-05be6d1b61994d4fb"
+        cidr: "172.31.110.0/24" 
+    private:
+      ap-northeast-2c:
+        id: "subnet-0ade62f8f25ec8be8"
+        cidr: "172.31.130.0/24"
+      ap-northeast-2d:
+        id: "subnet-01a4e209a4f75e2cc"
+        cidr: "172.31.150.0/24"
+
+nodeGroups:
+  - name: eks-cluster-ng
+    instanceType: t3a.large
+    desiredCapacity: 1
+    volumeSize: 10
+    iam:
+      withAddonPolicies:
+        ImageBuilder: true
+        albIngress: true
+    ssh:
+      allow: true
+      publicKeyName: examp-key.pem

@@ -1,0 +1,19 @@
+kops create cluster \
+  --zones=ap-northeast-2c \
+  --state s3://whitewhale-k8s-bucket \
+  --master-zones=ap-northeast-2c \
+  --node-count=2 \
+  --node-size=t3a.large \
+  --node-volume-size=8 \
+  --master-count=1 \
+  --master-size=t3a.large \
+  --master-volume-size=8 \
+  --topology=public \
+  --api-loadbalancer-type=public \
+  --vpc=vpc-b5678dde \
+  --network-cidr=172.31.0.0/16 \
+  --image='ami-00f1068284b9eca92' \
+  --networking=calico \
+  --cloud-labels "Owner=whitewhale" \
+  --ssh-public-key ./id_rsa.pub \
+  $NAME

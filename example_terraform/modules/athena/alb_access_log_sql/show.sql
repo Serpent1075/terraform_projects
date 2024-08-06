@@ -1,0 +1,1 @@
+show partitions gw_2020_api 

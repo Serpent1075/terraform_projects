@@ -1,0 +1,1 @@
+ALTER TABLE vpc_flow_logs ADD PARTITION (`date`='2024-01-08') LOCATION 's3://prd-bookclub-vpc-flowlog/AWSLogs/754254262511/vpcflowlogs/ap-northeast-2/2024/01/08'

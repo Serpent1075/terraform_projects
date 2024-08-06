@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: argocd
+  name: argocd-ingress
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/group.name: alb-01
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/load-balancer-name: jhoh-tf-argocd-alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:088755231083:certificate/3d2e746b-c233-4a9d-bfdc-267c366916ed
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-FS-1-2-Res-2020-10
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/success-codes: 200-399
+    alb.ingress.kubernetes.io/backend-protocol: HTTPS
+  labels:
+    app: argocd-ingress
+spec:
+  rules:
+    - host: argocd.jhoh1075.link
+      http:
+        paths:
+        - pathType: Prefix
+          path: /
+          backend:
+            service:
+              name: argo-argocd-server
+              port:
+                number: 443

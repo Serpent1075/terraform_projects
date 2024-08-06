@@ -1,0 +1,21 @@
+kops create cluster \
+  --zones=ap-northeast-1a,ap-northeast-1c \        # Node가 사용할 AZ
+  --master-zones=ap-northeast-1a,ap-northeast-1c \ # master가 사용할 AZ
+  --node-count=2 \ # Node instance count
+  --node-size=t2.small \ # Node instance type - 연습용으로는 t2.small, medium 정도가 적당하다.                 
+  --node-volume-size=20 \ # Node instance EBS size
+  --node-security-groups=sg-090e1a638b1910292,sg-0a322c2385e859d4a \ # Node에 설정할 Security Group 나는 dev-default 와 dev-ssh-from-bastion 의 SG id를 입력했다.
+  --master-count=3 \ # Master instance count 1, 3, 5..  
+  --master-size=t2.small \ # Master instance type - t2.medium 이상은 되야 덜 답답했다.
+  --master-volume-size=20 \ # Master intance EBS size
+  --master-security-groups=sg-090e1a638b1910292,sg-0a322c2385e859d4a\ # Master에 설정할 Security Group 나는 dev-default 와 dev-ssh-from-bastion 의 SG id를 입력했다.
+  --topology=private \ # 클러스터를 public, private 어떻게 오픈할 것인가?
+  --api-loadbalancer-type=internal \ # K8s api-server의 LB는 public, internal 중 어떤 것으로 할 것인가?
+  --admin-access=172.16.0.0/16 \ # K8s api-server에 access를 허용할 ip 대역, 우선 VPC 대역 전체를 허용했다. 필요에 따라 수정한다.
+  --vpc=vpc-007605415dedcb611 \ # dev VPC
+  --network-cidr=172.16.0.0/16 \ # dev VPC의 CIDR
+  --subnets=subnet-06da6f4bfca8b579b,subnet-0b4f2f38e17055fba \ # private subnet - 위에서 설명한 AWS cloud provider가 인식하기 위한 태그를 kops가 붙여준다.
+  --utility-subnets=subnet-038e0115b3816692b,subnet-08f020f81a02421b4 \ # public subnet 
+  --image='ami-0dbe2acf413e40198' \ # 도쿄 리전의 core os AMI ID
+  --networking=calico \ # calico, weave 등 overlay network driver를 선택할 수 있다.  
+  --cloud-labels "Owner=asbubam,Blog=blog.2dal.com" # 생성되는 AWS 리소스에 자동으로 붙여주고 싶은 tag 리스트

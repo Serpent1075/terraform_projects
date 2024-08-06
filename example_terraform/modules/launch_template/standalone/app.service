@@ -1,0 +1,7 @@
+[Unit]
+Description=Systemd Test Daemon
+
+[Service]
+Type=simple
+ExecStart=/app
+Restart=on-failure

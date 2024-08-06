@@ -1,0 +1,7 @@
+.github/*
+docs/*
+.git/*
+.gitignore
+CONTRIBUTING.md
+test/*
+**/values.yaml

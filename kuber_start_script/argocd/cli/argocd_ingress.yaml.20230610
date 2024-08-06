@@ -1,0 +1,111 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: argocd
+  name: argocd-ingress
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/group.name: alb-01
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/load-balancer-name: jhoh-tf-argocd-alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:1234560000:certificate/3d2e746b-c233-4a9d-bfdc-267c366916ed
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-FS-1-2-Res-2020-10
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/success-codes: 200-399
+    alb.ingress.kubernetes.io/backend-protocol: HTTPS
+  labels:
+    app: argocd-ingress
+spec:
+  rules:
+    - host: argocd.jhoh1075.link
+      http:
+        paths:
+        - pathType: Prefix
+          path: /
+          backend:
+            service:
+              name: argocd-server
+              port:
+                number: 443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-server
+spec:
+  selector:
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: argocd
+  ports:
+  - name: https
+    port: 443
+    targetPort: 8080
+  type: NodePort
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-cm
+    app.kubernetes.io/part-of: argocd
+data:
+  resource.customizations: |
+    argoproj.io/Application:
+      health.lua: |
+        hs = {}
+        hs.status = "Progressing"
+        hs.message = ""
+        if obj.status ~= nil then
+          if obj.status.health ~= nil then
+            hs.status = obj.status.health.status
+            if obj.status.health.message ~= nil then
+              hs.message = obj.status.health.message
+            end
+          end
+        end
+        return hs
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: argocd-application-controller
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+      - name: argocd-application-controller
+        env:
+        - name: ARGOCD_CONTROLLER_REPLICAS
+          value: "2"apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: argocd-application-controller
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+      - name: argocd-application-controller
+        env:
+        - name: ARGOCD_CONTROLLER_REPLICAS
+          value: "2"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-server
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: argocd-server
+        env:
+        - name: ARGOCD_API_SERVER_REPLICAS
+          value: "3"

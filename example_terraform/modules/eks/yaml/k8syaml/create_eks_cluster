@@ -1,0 +1,51 @@
+eksctl create cluster \
+--name my-cluster \
+--region ap-northeast-1 \
+--fargate
+
+eksctl delete cluster --name my-cluster --region ap-northeast-1
+
+aws eks describe-cluster --name my-cluster --query "cluster.identity.oidc.issuer" --output text
+
+aws iam create-policy \
+    --policy-name AWSLoadBalancerControllerIAMPolicy \
+    --policy-document file://iam_policy.json
+
+  eksctl create iamserviceaccount \
+  --cluster=my-cluster \
+  --namespace=kube-system \
+  --name=aws-load-balancer-controller \
+  --attach-policy-arn=arn:aws:iam::088755231083:policy/AWSLoadBalancerControllerIAMPolicy \
+  --override-existing-serviceaccounts \
+  --approve      
+
+  helm upgrade -i aws-load-balancer-controller eks/aws-load-balancer-controller \
+  --set clusterName=my-cluster \
+  --set serviceAccount.create=false \
+  --set serviceAccount.name=aws-load-balancer-controller \
+  --set region=ap-northeast-1 \
+  --set vpcId=vpc-2303ea45 \
+  -n kube-system
+
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+  --set clusterName=my-cluster \
+  --set serviceAccount.create=false \
+  --set serviceAccount.name=aws-load-balancer-controller \
+  --set region=ap-northeast-1 \
+  --set vpcId=vpc-2303ea45 \
+  -n kube-system
+
+  eksctl create fargateprofile --cluster my-cluster --region ap-northeast-1 --name alb-sample-app --namespace webapp-2021
+
+  {"level":"info","ts":1619855081.2951396,"msg":"version","GitVersion":"v2.1.3","GitCommit":"c9d30f23960f12cd1e985e9b2cd3f077b9a8c93f","BuildDate":"2021-02-18T19:32:05+0000"}
+{
+    "level":"error",
+    "ts":1619855087.5534627,
+    "logger":"setup",
+    "msg":"unable to initialize AWS cloud",
+    "error":"failed to introspect region from EC2Metadata, 
+    specify --aws-region instead if EC2Metadata is unavailable: 
+    EC2MetadataRequestError: failed to get EC2 instance identity document\n
+    caused by: RequestError: send request failed\n
+    caused by: Get \"http://169.254.169.254/latest/dynamic/instance-identity/document\": 
+    context deadline exceeded (Client.Timeout exceeded while awaiting headers)"}

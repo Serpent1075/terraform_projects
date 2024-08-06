@@ -1,0 +1,13 @@
+eksctl create cluster \
+--name whitewhale \
+--version 1.19 \
+--region ap-northeast-2 \
+--nodegroup-name linux-nodes \
+--nodes 3 \
+--nodes-min 1 \
+--nodes-max 4 \
+--with-oidc \
+--ssh-access \
+--ssh-public-key ekskey \
+--managed \
+--node-type t3.medium

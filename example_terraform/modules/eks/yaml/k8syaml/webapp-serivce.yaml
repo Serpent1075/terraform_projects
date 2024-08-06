@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: urmywebapp-svc-clusterip
+spec:
+  ports:
+    - name: webapp-port
+      port: 80
+      targetPort: flask-port
+  selector:
+    app: my-webapp
+  type: ClusterIP

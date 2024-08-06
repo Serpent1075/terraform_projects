@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-webapp-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-webapp
+  template:
+    metadata:
+      name: urmywebapp
+      labels:
+        app: my-webapp
+    spec:
+      containers:
+      - name: urmywebapp
+        image: tgja1075/urmywebapp:0.0
+        ports:
+        - containerPort: 3010
+          name: flask-port
+      imagePullSecrets:
+      - name: regcred

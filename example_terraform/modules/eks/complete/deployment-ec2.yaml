@@ -1,0 +1,80 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jhoh-tf
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapi-deployment
+  namespace: jhoh-tf
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: webapi
+  template:
+    metadata:
+      name: webapi-pod
+      namespace: kube-system
+      labels:
+        app.kubernetes.io/name: webapi
+    spec:
+      containers:
+      - name: webapi
+        image: nginx:1.10
+        ports:
+        - containerPort: 80
+          name: webapi-port
+      tolerations:
+      - key: eks.amazonaws.com/compute-type
+        value: ec2
+        effect: NoSchedule
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /index.html
+  name: webapi-service
+  namespace: jhoh-tf
+  labels:
+    app: webapi-service
+spec:
+  ports:
+    - name: webapi-svc-port
+      port: 8080
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: webapi
+  type: NodePort
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-test
+  namespace: jhoh-tf
+  labels:
+    app.kubernetes.io/name: ingress-test
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/load-balancer-name: jhoh-tf-ec2-kuber-alb
+    alb.ingress.kubernetes.io/subnets: 	subnet-00f02495f84769305,subnet-0d975fd4d6dccb06d,subnet-044ba881821b987bc
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:088755231083:certificate/3d2e746b-c233-4a9d-bfdc-267c366916ed
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-FS-1-2-Res-2020-10
+spec:
+  rules:
+    - host: kubertest.jhoh1075.link
+      http:
+        paths:
+        - pathType: Prefix
+          path: /nginx
+          backend:
+            service:
+              name: webapi-service
+              port:
+                number: 8080

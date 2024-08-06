@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: myingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: urmytalk.urmycorf.cf
+    http:
+      paths:
+      - path: /login
+        pathType: Prefix
+        backend:
+          serviceName: urmywebapp-svc-clusterip
+          servicePort: 80
+      - path: /register
+        pathType: Prefix
+        backend:
+          serviceName: urmywebapp-svc-clusterip
+          servicePort: 80
+      - path: /friendlist
+        pathType: Prefix
+        backend:
+          serviceName: urmywebapp-svc-clusterip
+          servicePort: 80

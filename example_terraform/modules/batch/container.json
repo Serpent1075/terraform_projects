@@ -1,0 +1,55 @@
+{
+    "jobDefinitionName": "${var.prefix}-batch-job-definition",
+    "command": ["./${var.app_name}", "Ref::uuid"],
+    "image": "${var.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.image_name}:latest",
+    "jobRoleArn": "${var.job_role_arn}",
+    "fargatePlatformConfiguration": {
+      "platformVersion": "LATEST"
+    },
+    "resourceRequirements": [
+      {"type": "VCPU", "value": "${var.vcpu}"},
+      {"type": "MEMORY", "value": "${var.mem}"}
+    ],
+    "executionRoleArn": "${var.batch-iam-arn}",
+    "logConfiguration": { 
+           "logDriver": "awslogs"
+        },
+    "mountPoints": [ 
+           { 
+              "containerPath": "/config",
+              "readOnly": true,
+              "sourceVolume": "${var.efsname}"
+           }
+        ],
+    "volumes": [ 
+           { 
+              "efsVolumeConfiguration": { 
+                 "fileSystemId": "${var.efs_file_system_id}",
+                 "rootDirectory": "/"
+              },
+              "name": "${var.efsname}"
+           }
+        ],
+    "secrets": [ 
+           { 
+              "name": "prefix",
+              "valueFrom": "${var.sm_prefix_arn}"
+           }, 
+           { 
+              "name": "redissecret",
+              "valueFrom": "${var.sm_redis_arn}"
+           },
+           { 
+              "name": "rdsssecret",
+              "valueFrom": "${var.sm_rds_arn}"
+           },
+           { 
+              "name": "pwsecret",
+              "valueFrom": "${var.sm_pw_arn}"
+           },
+           { 
+              "name": "mongosecret",
+              "valueFrom": "${var.sm_mongo_arn}"
+           }
+        ]
+  }
